@@ -1,4 +1,7 @@
 package com.senai.conta_bancaria.domain.repository;
 
-public interface ContaPoupancaRepository {
+import com.senai.conta_bancaria.domain.entity.ContaPoupanca;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ContaPoupancaRepository extends JpaRepository<ContaPoupanca, String> {
 }
