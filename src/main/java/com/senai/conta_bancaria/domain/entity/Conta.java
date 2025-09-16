@@ -1,19 +1,40 @@
 package com.senai.conta_bancaria.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-@Data
+
+import java.math.BigDecimal;
+
+
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)//ESTRATEGIA DE COMO SERA FEITA A TABELA NO BANCO
+@DiscriminatorColumn(name = "tipo_conta", discriminatorType = DiscriminatorType.STRING, length = 20)//DETERMINA O NOME DA COLUNA ADICIONAL, O TIPO DE ATRIBUTO QUE VAI RECEBER E O TAMANHO
+@Table(name = "conta",
+        uniqueConstraints = {
+            @UniqueConstraint(name = "uk_conta_numero", columnNames = {"numero"}),
+            @UniqueConstraint(name = "uk_cliente_tipo", columnNames = {"cliente_id","tipo_conta"})
+        })
+@Data
+@SuperBuilder//POIS TEM CLASSES QUE HERDAM DELA
+@NoArgsConstructor
 public abstract class Conta {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private int numero;
-    private int saldo;
-    private String tipo;
+    @Column(nullable = false, length = 20)//NÃO PERMITE QUE SEJA NULO, LIMITA O TAMANHO
+    private String numero;
+
+    @Column(nullable = false, precision = 4)//precision - QUANTAS CASAS DECIMAIS PODEM TER
+    private BigDecimal saldo; //substitui o tipo primitivo
+
+    @Column(nullable = false)
+    private Boolean ativa;
+
+    @ManyToOne(fetch = FetchType.LAZY)//fetch = FetchType.LAZY- BUSCA UMA UNICA VEZ A INFORMÇÃO E PARA(LIMITA)
+    @JoinColumn(name = "cliente_id",foreignKey = @ForeignKey(name = "fk_conta_cliente"))
+    private Cliente cliente;
 }
