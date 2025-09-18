@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)//ESTRATEGIA DE COMO SERA FEITA A TABELA NO BANCO
 @DiscriminatorColumn(name = "tipo_conta", discriminatorType = DiscriminatorType.STRING, length = 20)//DETERMINA O NOME DA COLUNA ADICIONAL, O TIPO DE ATRIBUTO QUE VAI RECEBER E O TAMANHO
-@Table(name = "conta",
+@Table(name = "contaDTO",
         uniqueConstraints = {
             @UniqueConstraint(name = "uk_conta_numero", columnNames = {"numero"}),
             @UniqueConstraint(name = "uk_cliente_tipo", columnNames = {"cliente_id","tipo_conta"})
