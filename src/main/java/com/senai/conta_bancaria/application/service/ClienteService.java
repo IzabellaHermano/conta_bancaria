@@ -39,5 +39,11 @@ public class ClienteService {
                 .map(ClienteResponseDTO::fromEntity)
                 .toList();
     }
+    public ClienteResponseDTO buscarClienteAtivoPorCpf(String cpf){
+        var cliente = repository.findByCpfAndAtivoTrue(cpf).orElseThrow(
+                ()-> new RuntimeException("Cliente não encontrado")
+        );
+        return ClienteResponseDTO.fromEntity(cliente);
+    }
 
 }
