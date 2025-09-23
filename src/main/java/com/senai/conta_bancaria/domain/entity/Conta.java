@@ -32,9 +32,11 @@ public abstract class Conta {
     private BigDecimal saldo; //substitui o tipo primitivo
 
     @Column(nullable = false)
-    private Boolean ativa;
+    private boolean ativa;
 
     @ManyToOne(fetch = FetchType.LAZY)//fetch = FetchType.LAZY- BUSCA UMA UNICA VEZ A INFORMÇÃO E PARA(LIMITA)
     @JoinColumn(name = "cliente_id",foreignKey = @ForeignKey(name = "fk_conta_cliente"))
     private Cliente cliente;
+
+    public abstract String getTipo();
 }

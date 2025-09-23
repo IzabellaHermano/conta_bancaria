@@ -9,9 +9,8 @@ public record ClienteRegistroDTO(
         String nome,
         String cpf,
         ContaResumoDTO contaDTO
-
 ) {
-    public Cliente toEntity(){
+    public Cliente toEntity() {
         return Cliente.builder()
                 .ativo(true)
                 .nome(this.nome)
@@ -19,6 +18,4 @@ public record ClienteRegistroDTO(
                 .contas(new ArrayList<Conta>())
                 .build();
     }
-
-
 }

@@ -24,4 +24,9 @@ public class ContaCorrente extends Conta {
 
     @Column(precision = 5)
     private BigDecimal taxa;
+
+    @Override
+    public String getTipo() {
+        return "CORRENTE";
+    }
 }
