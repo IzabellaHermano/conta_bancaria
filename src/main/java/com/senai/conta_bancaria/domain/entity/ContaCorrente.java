@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.math.BigDecimal;
 
@@ -28,5 +29,21 @@ public class ContaCorrente extends Conta {
     @Override
     public String getTipo() {
         return "CORRENTE";
+    }
+
+    //polimorfismo(subscreve o metodo da classe "pai")
+    @Override
+    public void sacar(BigDecimal valor) {
+        if(valor.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("O valor do saque deve ser positivo");
+        }
+        BigDecimal custoSaque = valor.multiply(taxa);
+        BigDecimal totalSaque = valor.add(custoSaque);
+
+        if(getSaldo().add(limite).compareTo(totalSaque) < 0){
+            throw new IllegalArgumentException("Saldo insuficiente para o saque");
+        }
+
+        setSaldo(getSaldo().subtract(totalSaque));
     }
 }

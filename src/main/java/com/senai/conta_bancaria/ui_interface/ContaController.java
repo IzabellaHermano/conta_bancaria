@@ -1,13 +1,13 @@
 package com.senai.conta_bancaria.ui_interface;
 
+
+import com.senai.conta_bancaria.application.dto.ContaAtualizacaoDTO;
 import com.senai.conta_bancaria.application.dto.ContaResumoDTO;
+import com.senai.conta_bancaria.application.dto.ValorSaqueDespositoDTO;
 import com.senai.conta_bancaria.application.service.ContaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,5 +26,24 @@ public class ContaController {
     @GetMapping("/numero/{numero}")
     public ResponseEntity <ContaResumoDTO> buscarContaAtivaPorNumero(@PathVariable String numero){
         return ResponseEntity.ok(service.buscarContaAtivaPorNumero(numero));
+    }
+    @PutMapping("/{numero}")
+    public ResponseEntity <ContaResumoDTO> atualizarConta(@PathVariable String numero,
+                                                          @RequestBody ContaAtualizacaoDTO dto){
+        return ResponseEntity.ok(service.atualizarConta(numero,dto));
+
+    }
+
+    @DeleteMapping("/{numero}")
+    public ResponseEntity<Void> deletarConta(@PathVariable String numero){
+        service.deletarConta(numero);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{numero}/sacar")
+    public  ResponseEntity<ContaResumoDTO> sacar(@PathVariable String numero,
+                                                 @RequestBody ValorSaqueDespositoDTO dto){
+
+        return ResponseEntity.ok(service.sacar(numero,dto));
     }
 }

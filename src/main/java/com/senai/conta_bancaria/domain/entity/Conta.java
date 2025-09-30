@@ -39,4 +39,14 @@ public abstract class Conta {
     private Cliente cliente;
 
     public abstract String getTipo();
+
+    public void sacar(BigDecimal valor) {
+        if(valor.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("O valor do saque deve ser positivo");
+        }
+        if(valor.compareTo(saldo) > 0){
+            throw new IllegalArgumentException("Saldo insuficiente para o saque");
+        }
+        saldo = saldo.subtract(valor);
+    }
 }
