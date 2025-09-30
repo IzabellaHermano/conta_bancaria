@@ -3,6 +3,7 @@ package com.senai.conta_bancaria.application.service;
 
 import com.senai.conta_bancaria.application.dto.ContaAtualizacaoDTO;
 import com.senai.conta_bancaria.application.dto.ContaResumoDTO;
+import com.senai.conta_bancaria.application.dto.TransferenciaDTO;
 import com.senai.conta_bancaria.application.dto.ValorSaqueDespositoDTO;
 import com.senai.conta_bancaria.domain.entity.Conta;
 import com.senai.conta_bancaria.domain.entity.ContaCorrente;
@@ -29,7 +30,7 @@ public class ContaService {
     }
 
     @Transactional(readOnly = true)
-    public ContaResumoDTO buscarContaAtivaPorNumero(String numero) {
+    public ContaResumoDTO buscarContaPorNumero(String numero) {
         return ContaResumoDTO.fromEntity(
                 repository.findByNumeroAndAtivaTrue(numero)
                         .orElseThrow(() -> new RuntimeException("Conta não encontrada")
@@ -37,8 +38,7 @@ public class ContaService {
     }
 
     public ContaResumoDTO atualizarConta(String numero, ContaAtualizacaoDTO dto) {
-        Conta conta = repository.findByNumeroAndAtivaTrue(numero)
-                .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
+        Conta conta = buscarContaAtivaPorNumero(numero);
 
         if (conta instanceof ContaPoupanca poupanca){
             poupanca.setRendimento(dto.rendimento());
@@ -55,17 +55,38 @@ public class ContaService {
     }
 
     public void deletarConta(String numero) {
-        Conta conta = repository.findByNumeroAndAtivaTrue(numero)
-                .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
+        Conta conta = buscarContaAtivaPorNumero(numero);
         conta.setAtiva(false);
         repository.save(conta);
     }
 
     public ContaResumoDTO sacar(String numero, ValorSaqueDespositoDTO dto) {
-        Conta conta = repository.findByNumeroAndAtivaTrue(numero)
-                .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
+        Conta conta = buscarContaAtivaPorNumero(numero);
         conta.sacar(dto.valor());
         return ContaResumoDTO.fromEntity(repository.save(conta));
+    }
+    public ContaResumoDTO depositar(String numero, ValorSaqueDespositoDTO dto) {
+        Conta conta = buscarContaAtivaPorNumero(numero);
+        conta.depositar(dto.valor());
+        return ContaResumoDTO.fromEntity(repository.save(conta));
+    }
+
+    public ContaResumoDTO tranferir(String numero, TransferenciaDTO dto) {
+        Conta contaOrigem = buscarContaAtivaPorNumero(numero);
+        Conta contaDestino = buscarContaAtivaPorNumero(dto.contaDestino());
+
+        contaOrigem.sacar(dto.valor());
+        contaDestino.depositar(dto.valor());
+
+        repository.save(contaDestino);
+        return ContaResumoDTO.fromEntity(repository.save(contaOrigem));
 
     }
+
+    private Conta buscarContaAtivaPorNumero(String numero){
+        return repository.findByNumeroAndAtivaTrue(numero)
+                .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
+    }
+
+
 }
