@@ -20,10 +20,10 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class ContaCorrente extends Conta {
 
-    @Column(precision = 4,scale = 2)
+    @Column(precision = 19,scale = 2)
     private BigDecimal limite;
 
-    @Column(precision = 5,scale = 2)
+    @Column(precision = 19,scale = 2)
     private BigDecimal taxa;
 
     @Override

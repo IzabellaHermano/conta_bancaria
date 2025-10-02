@@ -28,7 +28,7 @@ public abstract class Conta {
     @Column(nullable = false, length = 20)//NÃO PERMITE QUE SEJA NULO, LIMITA O TAMANHO
     private String numero;
 
-    @Column(nullable = false, precision = 4,scale = 2)//precision - QUANTAS CASAS DECIMAIS PODEM TER
+    @Column(nullable = false, precision = 19,scale = 2)//precision - QUANTAS CASAS DECIMAIS PODEM TER
     private BigDecimal saldo; //substitui o tipo primitivo
 
     @Column(nullable = false)
