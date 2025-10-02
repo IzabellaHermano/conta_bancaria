@@ -28,7 +28,7 @@ public abstract class Conta {
     @Column(nullable = false, length = 20)//NÃO PERMITE QUE SEJA NULO, LIMITA O TAMANHO
     private String numero;
 
-    @Column(nullable = false, precision = 4)//precision - QUANTAS CASAS DECIMAIS PODEM TER
+    @Column(nullable = false, precision = 4,scale = 2)//precision - QUANTAS CASAS DECIMAIS PODEM TER
     private BigDecimal saldo; //substitui o tipo primitivo
 
     @Column(nullable = false)
@@ -53,9 +53,16 @@ public abstract class Conta {
         saldo = saldo.add(valor);
     }
 
-    private static void validaValorMaiorQueZero(BigDecimal valor) {
+    protected static void validaValorMaiorQueZero(BigDecimal valor) {
         if(valor.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("O valor do saque deve ser positivo");
         }
+    }
+    public void transferir(BigDecimal valor, Conta contaDestino) {
+        if(this.id.equals(contaDestino.getId())) {
+            throw new IllegalArgumentException("Não é possivel transferir para a mesma conta");
+        }
+        this.sacar(valor);
+        contaDestino.depositar(valor);
     }
 }
