@@ -8,6 +8,9 @@ import com.senai.conta_bancaria.application.dto.ValorSaqueDespositoDTO;
 import com.senai.conta_bancaria.domain.entity.Conta;
 import com.senai.conta_bancaria.domain.entity.ContaCorrente;
 import com.senai.conta_bancaria.domain.entity.ContaPoupanca;
+import com.senai.conta_bancaria.domain.exception.EntidadeNaoEncontradaException;
+import com.senai.conta_bancaria.domain.exception.RendimentoInvalidoException;
+import com.senai.conta_bancaria.domain.exception.TipoDeContaInvalidaException;
 import com.senai.conta_bancaria.domain.repository.ContaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,9 +35,8 @@ public class ContaService {
     @Transactional(readOnly = true)
     public ContaResumoDTO buscarContaPorNumero(String numero) {
         return ContaResumoDTO.fromEntity(
-                repository.findByNumeroAndAtivaTrue(numero)
-                        .orElseThrow(() -> new RuntimeException("Conta não encontrada")
-        ));
+                buscarContaAtivaPorNumero(numero)
+        );
     }
 
     public ContaResumoDTO atualizarConta(String numero, ContaAtualizacaoDTO dto) {
@@ -47,7 +49,7 @@ public class ContaService {
             corrente.setLimite(dto.limite());
             corrente.setTaxa(dto.taxa());
         }else{
-            throw new RuntimeException("Tipo de Conta Inválido");
+            throw new TipoDeContaInvalidaException("");
         }
 
         conta.setSaldo(dto.saldo());
@@ -75,8 +77,7 @@ public class ContaService {
         Conta contaOrigem = buscarContaAtivaPorNumero(numero);
         Conta contaDestino = buscarContaAtivaPorNumero(dto.contaDestino());
 
-        contaOrigem.sacar(dto.valor());
-        contaDestino.depositar(dto.valor());
+        contaOrigem.transferir(dto.valor(), contaDestino);
 
         repository.save(contaDestino);
         return ContaResumoDTO.fromEntity(repository.save(contaOrigem));
@@ -85,8 +86,16 @@ public class ContaService {
 
     private Conta buscarContaAtivaPorNumero(String numero){
         return repository.findByNumeroAndAtivaTrue(numero)
-                .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("conta")
+                );
     }
 
-
+    public ContaResumoDTO aplicarRendimento(String numero) {
+        Conta conta = buscarContaAtivaPorNumero(numero);
+        if (conta instanceof ContaPoupanca poupanca){
+            poupanca.aplicarRendimento();
+            return ContaResumoDTO.fromEntity(repository.save(poupanca));
+        }
+        throw new RendimentoInvalidoException();
+    }
 }
