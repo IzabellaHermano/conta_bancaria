@@ -6,6 +6,7 @@ import com.senai.conta_bancaria.application.dto.ContaResumoDTO;
 import com.senai.conta_bancaria.application.dto.TransferenciaDTO;
 import com.senai.conta_bancaria.application.dto.ValorSaqueDespositoDTO;
 import com.senai.conta_bancaria.application.service.ContaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class ContaController {
     }
     @PutMapping("/{numero}")
     public ResponseEntity <ContaResumoDTO> atualizarConta(@PathVariable String numero,
-                                                          @RequestBody ContaAtualizacaoDTO dto){
+                                                          @Valid @RequestBody ContaAtualizacaoDTO dto){
         return ResponseEntity.ok(service.atualizarConta(numero,dto));
 
     }
@@ -43,19 +44,19 @@ public class ContaController {
 
     @PostMapping("/{numero}/sacar")
     public  ResponseEntity<ContaResumoDTO> sacar(@PathVariable String numero,
-                                                 @RequestBody ValorSaqueDespositoDTO dto){
+                                                 @Valid @RequestBody ValorSaqueDespositoDTO dto){
         return ResponseEntity.ok(service.sacar(numero,dto));
     }
 
     @PostMapping("/{numero}/depositar")
     public ResponseEntity<ContaResumoDTO> depositar (@PathVariable String numero,
-                                                     @RequestBody ValorSaqueDespositoDTO dto){
+                                                     @Valid @RequestBody ValorSaqueDespositoDTO dto){
         return ResponseEntity.ok(service.depositar(numero,dto));
     }
 
     @PutMapping("/{numero}/transferir")
     public ResponseEntity<ContaResumoDTO> transferir(@PathVariable String numero,
-                                                     @RequestBody TransferenciaDTO dto){
+                                                     @Valid @RequestBody TransferenciaDTO dto){
         return ResponseEntity.ok(service.tranferir(numero,dto));
     }
 
