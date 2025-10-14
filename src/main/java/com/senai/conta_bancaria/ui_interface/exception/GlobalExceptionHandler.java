@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
                                                        HttpServletRequest request){
         return ProblemDetailUtils.buildProblem(
                 HttpStatus.CONFLICT,
-                "O cliente ja possui uma conta deste tipo",
+                "Conflito na Criação da Conta!",
                 exception.getMessage(),
                 request.getRequestURI()
         );
@@ -34,11 +34,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntidadeNaoEncontradaException.class)
     public ProblemDetail handleEntidadeNaoEncontradaException(EntidadeNaoEncontradaException exception,
-                                                              HttpServletRequest request,
-                                                              String entidade){
+                                                              HttpServletRequest request){
         return ProblemDetailUtils.buildProblem(
                 HttpStatus.NOT_FOUND,
-                entidade+" não existe ou inativo(a)",
+                "Entidade Não Encontrada!",
                 exception.getMessage(),
                 request.getRequestURI()
         );
@@ -49,7 +48,7 @@ public class GlobalExceptionHandler {
                                                            HttpServletRequest request){
         return ProblemDetailUtils.buildProblem(
                 HttpStatus.BAD_REQUEST,
-                "Rendimento deve ser aplicado somente em conta poupança!",
+                "Rendimento Inválido!",
                 exception.getMessage(),
                 request.getRequestURI()
         );
@@ -57,11 +56,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(SaldoInsuficienteException.class)
     public ProblemDetail handleSaldoInsuficienteException(SaldoInsuficienteException exception,
-                                                          HttpServletRequest request,
-                                                          String operacao){
+                                                          HttpServletRequest request){
         return ProblemDetailUtils.buildProblem(
                 HttpStatus.BAD_REQUEST,
-                "Saldo insuficiente para realizar a operação de"+operacao,
+                "Saldo insuficiente!",
                 exception.getMessage(),
                 request.getRequestURI()
         );
@@ -69,11 +67,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TipoDeContaInvalidaException.class)
     public ProblemDetail handleTipoDeContaInvalidaException(TipoDeContaInvalidaException exception,
-                                                            HttpServletRequest request,
-                                                            String tipo){
+                                                            HttpServletRequest request){
         return ProblemDetailUtils.buildProblem(
                 HttpStatus.BAD_REQUEST,
-                "Tipo de conta "+tipo+" inválida. Os tipos válidos são: 'CORRENTE', 'POUPANCA'.",
+                "Tipo de Conta Inválido!",
                 exception.getMessage(),
                 request.getRequestURI()
         );
@@ -85,7 +82,7 @@ public class GlobalExceptionHandler {
 
         return ProblemDetailUtils.buildProblem(
                 HttpStatus.BAD_REQUEST,
-                "Não é possível transferir para a mesma conta",
+                "Transferencia Inválida!",
                 exception.getMessage(),
                 request.getRequestURI()
         );
@@ -93,11 +90,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ValoresNegativosException.class)
     public ProblemDetail handleValoresNegativosException(ValoresNegativosException exception,
-                                                         HttpServletRequest request,
-                                                         String operacao){
+                                                         HttpServletRequest request){
         return ProblemDetailUtils.buildProblem(
                 HttpStatus.BAD_REQUEST,
-                "Não é possivel realizar "+operacao+" com valores negativos",
+                "Valores Inválidos!",
                 exception.getMessage(),
                 request.getRequestURI()
         );

@@ -14,11 +14,13 @@ import java.math.BigDecimal;
 
 public record ContaResumoDTO(
 
+        @NotNull(message = "Número da conta não pode ser null")
         @NotBlank(message = "O número da conta é obrigatório.")
         @Pattern(regexp = "^\\\\d{4}-\\\\d{2}$", message = "O número da conta deve estar no formato 0000-00.")
         @Size(max = 7, message = "O número da conta deve ter 7 digítos, formato: 0000-00")
         String numero,
 
+        @NotNull(message = "Tipo de conta não pode ser null")
         @NotBlank(message = "O tipo da conta é obrigatório.")
         @Pattern(regexp = "CORRENTE|POUPANCA", message = "Tipo inválido. Valores válidos: CORRENTE, POUPANCA")
         String tipo,
