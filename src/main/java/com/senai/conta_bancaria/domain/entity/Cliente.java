@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import lombok.experimental.SuperBuilder;
 
 
 import java.util.List;
@@ -13,30 +13,19 @@ import java.util.List;
 @Data//GETTERS E SETTERS
 @AllArgsConstructor //CONSTRUTOR COM TODOS OS PARAMETROS
 @NoArgsConstructor//CONSTRUTOR SEM PARAMETROS
-@Builder//ACESSO AO BILDER E PERMITE CONTRUIR OBJETO CONFORME O NECESSIDADE (FACILITA A CRIAÇÃO DE UM OBJETO)
+@SuperBuilder//ACESSO AO BILDER E PERMITE CONTRUIR OBJETO CONFORME O NECESSIDADE (FACILITA A CRIAÇÃO DE UM OBJETO)
 @Table(name = "cliente",//PERMITE MODELAR MELHOR A TABELA DO BANCO
         /*REGRAS NA HORA DE POPULAÇÃO DO BANCO (NÃO PERMITE TER DOIS VALORES IGUAIS DE CPF)*/
         uniqueConstraints ={
             @UniqueConstraint(columnNames = {"cpf"})
         }
 )
-public class Cliente {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
-    @Column(nullable = false, length = 120)
-    private String nome;
-
-    @Column(nullable = false, length = 11)
-    private String cpf;
+public class Cliente extends Usuario{
 
     //TIPO DE RELACIONAMENTO (1:N)
     @OneToMany(mappedBy = "cliente",cascade = CascadeType.ALL)//mappedBy - MAPEA O ATRIBUTO, cascade - PERMITE INTERLIGAR TOTALMENTE
     private List<Conta> contas;
 
-    @Column(nullable = false)
-    private Boolean ativo;
 
 }
 
