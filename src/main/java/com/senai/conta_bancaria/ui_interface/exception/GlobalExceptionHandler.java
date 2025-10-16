@@ -7,15 +7,20 @@ import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.naming.AuthenticationException;
 import java.net.URI;
+import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static com.senai.conta_bancaria.ui_interface.exception.ProblemDetailUtils.buildProblem;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -24,7 +29,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ContaMesmoTipoException.class)
     public ProblemDetail handleContaMesmoTipoException(ContaMesmoTipoException exception,
                                                        HttpServletRequest request){
-        return ProblemDetailUtils.buildProblem(
+        return buildProblem(
                 HttpStatus.CONFLICT,
                 "Conflito na Criação da Conta!",
                 exception.getMessage(),
@@ -35,7 +40,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntidadeNaoEncontradaException.class)
     public ProblemDetail handleEntidadeNaoEncontradaException(EntidadeNaoEncontradaException exception,
                                                               HttpServletRequest request){
-        return ProblemDetailUtils.buildProblem(
+        return buildProblem(
                 HttpStatus.NOT_FOUND,
                 "Entidade Não Encontrada!",
                 exception.getMessage(),
@@ -46,7 +51,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RendimentoInvalidoException.class)
     public ProblemDetail handleRendimentoInvalidoException(RendimentoInvalidoException exception,
                                                            HttpServletRequest request){
-        return ProblemDetailUtils.buildProblem(
+        return buildProblem(
                 HttpStatus.BAD_REQUEST,
                 "Rendimento Inválido!",
                 exception.getMessage(),
@@ -57,7 +62,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SaldoInsuficienteException.class)
     public ProblemDetail handleSaldoInsuficienteException(SaldoInsuficienteException exception,
                                                           HttpServletRequest request){
-        return ProblemDetailUtils.buildProblem(
+        return buildProblem(
                 HttpStatus.BAD_REQUEST,
                 "Saldo insuficiente!",
                 exception.getMessage(),
@@ -68,7 +73,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TipoDeContaInvalidaException.class)
     public ProblemDetail handleTipoDeContaInvalidaException(TipoDeContaInvalidaException exception,
                                                             HttpServletRequest request){
-        return ProblemDetailUtils.buildProblem(
+        return buildProblem(
                 HttpStatus.BAD_REQUEST,
                 "Tipo de Conta Inválido!",
                 exception.getMessage(),
@@ -80,7 +85,7 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleTransferirParaMesmaContaException(TransferirParaMesmaContaException exception,
                                                                  HttpServletRequest request){
 
-        return ProblemDetailUtils.buildProblem(
+        return buildProblem(
                 HttpStatus.BAD_REQUEST,
                 "Transferencia Inválida!",
                 exception.getMessage(),
@@ -91,7 +96,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValoresNegativosException.class)
     public ProblemDetail handleValoresNegativosException(ValoresNegativosException exception,
                                                          HttpServletRequest request){
-        return ProblemDetailUtils.buildProblem(
+        return buildProblem(
                 HttpStatus.BAD_REQUEST,
                 "Valores Inválidos!",
                 exception.getMessage(),
@@ -99,14 +104,46 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(Exception.class)//qualquer outro erro sem ser os descritos acima
-    public ResponseEntity <String> handleException(Exception exception){
-        return new ResponseEntity <>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail hanlderGenerico(Exception ex, HttpServletRequest request) {
+        return buildProblem(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Erro interno",
+                "Ocorreu um erro inesperado. Contate o suporte.",
+                request.getRequestURI()
+        );
+    }
+    @ExceptionHandler(AuthenticationException.class)
+    public ProblemDetail handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
+        return buildProblem(
+                HttpStatus.UNAUTHORIZED,
+                "Não autenticado",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+    }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+        return buildProblem(
+                HttpStatus.FORBIDDEN,
+                "Acesso negado",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ProblemDetail handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
+        return buildProblem(
+                HttpStatus.UNAUTHORIZED,
+                "Credenciais inválidas",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail badRequest(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        ProblemDetail problem = ProblemDetailUtils.buildProblem(
+        ProblemDetail problem = buildProblem(
                 HttpStatus.BAD_REQUEST,
                 "Erro de validação",
                 "Um ou mais campos são inválidos",
