@@ -1,4 +1,4 @@
-package com.senai.conta_bancaria.infrastructure.security.security;
+package com.senai.conta_bancaria.infrastructure.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -26,8 +26,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**","/swagger-ui/**","/v3/api-docs/**").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/admin").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/admin").hasAnyRole("GERENTE","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/cliente").hasRole("GERENTE")
+                        .requestMatchers(HttpMethod.GET, "/cliente").hasRole("GERENTE")
+                        .requestMatchers(HttpMethod.PUT, "/cliente").hasRole("GERENTE")
+                        .requestMatchers(HttpMethod.DELETE, "/cliente").hasRole("GERENTE")
+
+                        .requestMatchers(HttpMethod.POST, "/conta").hasAnyRole("GERENTE","CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/conta").hasAnyRole("GERENTE","CLIENTE")
+                        .requestMatchers(HttpMethod.PUT, "/conta").hasAnyRole("GERENTE","CLIENTE")
+                        .requestMatchers(HttpMethod.DELETE, "/conta").hasAnyRole("GERENTE")
 
                         .anyRequest().authenticated()
                 )

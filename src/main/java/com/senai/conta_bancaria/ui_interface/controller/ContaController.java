@@ -9,6 +9,7 @@ import com.senai.conta_bancaria.application.service.ContaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,11 +21,13 @@ public class ContaController {
 
     private final ContaService service;
 
+    @PreAuthorize( "hasRole('GERENTE')")
     @GetMapping
     public ResponseEntity <List<ContaResumoDTO>> listarContasAtivas(){
         return ResponseEntity.ok(service.listarContasAtivas());
     }
 
+    @PreAuthorize( "hasAnyRole('GERENTE','CLIENTE')")
     @GetMapping("/numero/{numero}")
     public ResponseEntity <ContaResumoDTO> buscarContaAtivaPorNumero(@PathVariable String numero){
         return ResponseEntity.ok(service.buscarContaPorNumero(numero));

@@ -1,4 +1,4 @@
-package com.senai.conta_bancaria.infrastructure.security.security;
+package com.senai.conta_bancaria.infrastructure.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

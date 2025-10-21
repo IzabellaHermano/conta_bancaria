@@ -1,15 +1,10 @@
 package com.senai.conta_bancaria.application.dto;
 
-import com.senai.conta_bancaria.domain.entity.Cliente;
-import com.senai.conta_bancaria.domain.entity.Conta;
-import jakarta.persistence.Column;
-import jakarta.validation.Valid;
+import com.senai.conta_bancaria.domain.entity.Gerente;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.br.CPF;
 
-import java.util.ArrayList;
-
-public record ClienteRegistroDTO(
+public record GerenteDTO (
 
         @NotNull(message = "Nome não pode ser null")
         @NotBlank(message = "Nome é obrigatório")
@@ -28,20 +23,15 @@ public record ClienteRegistroDTO(
         String email,
 
         @NotBlank
-        String senha,
-
-        @NotNull(message = "A conta é obrigatória.")
-        @Valid
-        ContaResumoDTO contaDTO
+        String senha
 ) {
-    public Cliente toEntity() {
-        return Cliente.builder()
+    public Gerente toEntity() {
+        return Gerente.builder()
                 .ativo(true)
                 .nome(this.nome)
                 .cpf(this.cpf)
                 .email(this.email)
                 .senha(this.senha)
-                .contas(new ArrayList<Conta>())
                 .build();
     }
 }

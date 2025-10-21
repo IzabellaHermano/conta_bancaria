@@ -5,7 +5,7 @@ import com.senai.conta_bancaria.application.dto.AuthDTO;
 import com.senai.conta_bancaria.domain.entity.Usuario;
 import com.senai.conta_bancaria.domain.exception.UsuarioNaoEncontradoException;
 import com.senai.conta_bancaria.domain.repository.UsuarioRepository;
-import com.senai.conta_bancaria.infrastructure.security.security.JwtService;
+import com.senai.conta_bancaria.infrastructure.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;

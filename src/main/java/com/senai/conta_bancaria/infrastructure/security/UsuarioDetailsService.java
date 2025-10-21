@@ -1,4 +1,4 @@
-package com.senai.conta_bancaria.infrastructure.security.security;
+package com.senai.conta_bancaria.infrastructure.security;
 
 import com.senai.conta_bancaria.domain.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
