@@ -15,14 +15,21 @@ public record ClienteResponseDTO(
         @NotNull(message = "Nome não pode ser null")
         @NotBlank(message = "Nome é obrigatório")
         @Size(min = 2, max = 100, message = "O tamanho deve ser entre 2 e 100")
-        @Pattern(regexp = "^[A-Za-zÀ-ÖØ-öø-ÿ\\s]+$", message = "O nome deve conter apenas letras")
+        //@Pattern(regexp = "^[A-Za-zÀ-ÖØ-öø-ÿ\\s]+$", message = "O nome deve conter apenas letras")
         String nome,
 
         @NotNull(message = "CPF não pode ser null")
         @NotBlank(message = "CPF é obrigatório")
-        @CPF(message = "CPF inválido.")
-        @Pattern(regexp = "^\\\\d{3}\\\\.\\\\d{3}\\\\.\\\\d{3}\\\\-\\\\d{2}$",message = "O CPF deve estar no formato 000.000.000-00.")
+        //@CPF(message = "CPF inválido.")
+        //@Pattern(regexp = "^\\\\d{3}\\\\.\\\\d{3}\\\\.\\\\d{3}\\\\-\\\\d{2}$",message = "O CPF deve estar no formato 000.000.000-00.")
         String cpf,
+
+        @Email
+        @NotBlank
+        String email,
+
+        @NotBlank
+        String senha,
 
         @NotEmpty(message = "O cliente deve ter pelo menos uma conta cadastrada.")
         @Valid
@@ -34,6 +41,8 @@ public record ClienteResponseDTO(
                 cliente.getId(),
                 cliente.getNome(),
                 cliente.getCpf(),
+                cliente.getEmail(),
+                cliente.getSenha(),
                 contas
         );
     }

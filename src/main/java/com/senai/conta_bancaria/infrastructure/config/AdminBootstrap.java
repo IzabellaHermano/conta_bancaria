@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class GerenteBootstrap implements CommandLineRunner {
+public class AdminBootstrap implements CommandLineRunner {
 
     private final GerenteRepository gerenteRepository;
     private final PasswordEncoder passwordEncoder;
@@ -37,7 +37,7 @@ public class GerenteBootstrap implements CommandLineRunner {
                             .email(adminEmail)
                             .cpf("000.000.000-00")
                             .senha(passwordEncoder.encode(adminSenha))
-                            .role(Role.GERENTE)
+                            .role(Role.ADMIN)
                             .build();
                     gerenteRepository.save(admin);
                     System.out.println("⚡ Usuário admin provisório criado: " + adminEmail);

@@ -32,6 +32,8 @@ public class ContaController {
     public ResponseEntity <ContaResumoDTO> buscarContaAtivaPorNumero(@PathVariable String numero){
         return ResponseEntity.ok(service.buscarContaPorNumero(numero));
     }
+
+    @PreAuthorize( "hasRole('GERENTE')")
     @PutMapping("/{numero}")
     public ResponseEntity <ContaResumoDTO> atualizarConta(@PathVariable String numero,
                                                           @Valid @RequestBody ContaAtualizacaoDTO dto){
@@ -39,30 +41,35 @@ public class ContaController {
 
     }
 
+    @PreAuthorize( "hasRole('GERENTE')")
     @DeleteMapping("/{numero}")
     public ResponseEntity<Void> deletarConta(@PathVariable String numero){
         service.deletarConta(numero);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize( "hasRole('CLIENTE')")
     @PostMapping("/{numero}/sacar")
     public  ResponseEntity<ContaResumoDTO> sacar(@PathVariable String numero,
                                                  @Valid @RequestBody ValorSaqueDespositoDTO dto){
         return ResponseEntity.ok(service.sacar(numero,dto));
     }
 
+    @PreAuthorize( "hasRole('CLIENTE')")
     @PostMapping("/{numero}/depositar")
     public ResponseEntity<ContaResumoDTO> depositar (@PathVariable String numero,
                                                      @Valid @RequestBody ValorSaqueDespositoDTO dto){
         return ResponseEntity.ok(service.depositar(numero,dto));
     }
 
+    @PreAuthorize( "hasRole('CLIENTE')")
     @PutMapping("/{numero}/transferir")
     public ResponseEntity<ContaResumoDTO> transferir(@PathVariable String numero,
                                                      @Valid @RequestBody TransferenciaDTO dto){
         return ResponseEntity.ok(service.tranferir(numero,dto));
     }
 
+    @PreAuthorize( "hasRole('GERENTE')")
     @PostMapping("/{numero}/rendimento")
     public ResponseEntity<ContaResumoDTO> aplicarRendimento(@PathVariable String numero){
         return ResponseEntity.ok(service.aplicarRendimento(numero));
