@@ -22,6 +22,7 @@ public record ClienteAtualizadoDTO (
         String email,
 
         @NotBlank
+        @Size(min = 4, max = 8, message = "A sua senha deve ter no mínimo 4 digitos.")
         String senha
 ){
 }

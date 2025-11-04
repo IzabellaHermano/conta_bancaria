@@ -29,6 +29,7 @@ public record ClienteResponseDTO(
         String email,
 
         @NotBlank
+        @Size(min = 4, max = 8, message = "A sua senha deve ter no mínimo 4 digitos.")
         String senha,
 
         @NotEmpty(message = "O cliente deve ter pelo menos uma conta cadastrada.")

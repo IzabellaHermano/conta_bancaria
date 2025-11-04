@@ -4,6 +4,12 @@ import com.senai.conta_bancaria.application.dto.ClienteAtualizadoDTO;
 import com.senai.conta_bancaria.application.dto.ClienteRegistroDTO;
 import com.senai.conta_bancaria.application.dto.ClienteResponseDTO;
 import com.senai.conta_bancaria.application.service.ClienteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +26,46 @@ public class ClienteController {
 
     private final ClienteService service;
 
+    @Operation(
+            summary = "Registrar Cliente e Conta do cliente",
+            description = "Cria e registra um cliente já atribuindo uma conta a ele",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = ClienteRegistroDTO.class),
+                            examples = @ExampleObject(name = "Exemplo válido", value = """
+                                            {
+                                              "nome": "Jonas",
+                                              "cpf": "12345678910",
+                                              "email":"jonas@email.com",
+                                              "senha": "1234",
+                                              "contaDTO": {
+                                                    "numero": "12346",
+                                                    "tipo": "CORRENTE",
+                                                    "saldo": 700.00
+                                              }
+                                             }
+                                    """
+                            )
+                    )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Cliente cadastrado com sucesso!"),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Erro de validação",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = {
+                                            @ExampleObject(name = "Conta do mesmo tipo", value = "Cliente já possui uma conta do tipo CORRENTE"),
+                                            @ExampleObject(name = "Senha curta demais", value = "A sua senha deve ter no mínimo 4 digitos."),
+                                            @ExampleObject(name = "CPF inválido", value = "O CPF deve contar exatamente 11 dígitos numéricos"),
+                                            @ExampleObject(name = "Tipo de conta Inválido", value = "Tipo de conta: 'XXXXX' desconhecido. Os únicos válidos são: 'CORRENTE' e 'POUPANCA'.")
+                                    }
+                            )
+                    )
+            }
+    )
     @PreAuthorize( "hasRole('GERENTE')")
     @PostMapping
     public ResponseEntity <ClienteResponseDTO> registrarCliente(@Valid @RequestBody ClienteRegistroDTO dto) {
@@ -29,18 +75,89 @@ public class ClienteController {
                 clienteNovo.cpf())).body(clienteNovo);
     }
 
+    @Operation(
+            summary = "Listar clientes",
+            description = "Lista todos os clientes no banco de dados",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista com clientes retornada com sucesso.")
+            }
+    )
     @PreAuthorize( "hasRole('GERENTE')")
     @GetMapping
     public ResponseEntity<List<ClienteResponseDTO>> listarClientesAtivos(){
         return ResponseEntity.ok(service.listarClientesAtivos());
     }
 
+    @Operation(
+            summary = "Listar clientes por CPF",
+            description = "Retorna clientes ativos pelo CPF requesitado.",
+            parameters = {
+                    @Parameter(name = "CPF", description = "CPF do Cliente que deseja buscar: 123.456.789-10")
+            },
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso"),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Cliente não encontrado",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(value = "Cliente com CPF: 123456789   10 não encontrado.")
+                            )
+                    )
+            }
+    )
     @PreAuthorize( "hasRole('GERENTE')")
     @GetMapping("/cpf/{cpf}")
     public ResponseEntity <ClienteResponseDTO> buscarClienteAtivoPorCpf(@PathVariable String cpf){
         return  ResponseEntity.ok(service.buscarClienteAtivoPorCpfTrue(cpf));
     }
 
+    @Operation(
+            summary = "Atualizar Cliente e Conta do cliente",
+            description = "Atualiza e salva as informações de um cliente",
+            parameters = {
+                    @Parameter(name = "CPF", description = "CPF do Cliente que deseja buscar: 123.456.789-10")
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = ClienteRegistroDTO.class),
+                            examples = @ExampleObject(name = "Exemplo válido", value = """
+                                        {
+                                          "nome": "Henrique",
+                                          "cpf": "12378945611",
+                                          "email":"henrique@email.com",
+                                          "senha": "1234"
+                                         }
+                                    """
+                            )
+                    )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Cliente atualizado com sucesso!"),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Erro de validação",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = {
+                                            @ExampleObject(name = "Conta do mesmo tipo", value = "Cliente já possui uma conta do tipo CORRENTE"),
+                                            @ExampleObject(name = "Senha curta demais", value = "A sua senha deve ter no mínimo 4 digitos."),
+                                            @ExampleObject(name = "CPF inválido", value = "O CPF deve contar exatamente 11 dígitos numéricos"),
+                                            @ExampleObject(name = "Tipo de conta Inválido", value = "Tipo de conta: 'XXXXX' desconhecido. Os únicos válidos são: 'CORRENTE' e 'POUPANCA'.")
+                                    }
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Cliente não encontrado",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(value = "Cliente com CPF: 12345678910 não encontrado.")
+                            )
+                    )
+            }
+    )
     @PreAuthorize( "hasRole('GERENTE')")
     @PutMapping("/{cpf}")
     public ResponseEntity <ClienteResponseDTO> atualizarCliente(@PathVariable String cpf,
@@ -48,6 +165,24 @@ public class ClienteController {
         return ResponseEntity.ok(service.atualizarCliente(cpf,dto));
     }
 
+    @Operation(
+            summary = "Deletar um cliente",
+            description = "Desativa a conta e o registro de um cliente do sistema",
+            parameters = {
+                    @Parameter(name = "CPF", description = "CPF do Cliente que deseja buscar: 12345678910")
+            },
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Cliente deletado com sucesso."),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Cliente não encontrado",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(value = "Cliente com CPF: 12345678910 não encontrado.")
+                            )
+                    )
+            }
+    )
     @PreAuthorize( "hasRole('GERENTE')")
     @DeleteMapping("/{cpf}")
     public ResponseEntity <Void> deletarCliente(@PathVariable String cpf){
