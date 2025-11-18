@@ -14,23 +14,18 @@ import java.math.BigDecimal;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "taxa",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"id"})
-        }
-)
+@Table(name = "taxa")
 public class Taxa {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @NotBlank
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     protected String descricao;
 
-    @Column(precision = 19,scale = 2)
+    @Column(nullable = false, precision = 5, scale = 4)
     private BigDecimal percentual;
 
-    @Column(nullable = false, precision = 19,scale = 2)
+    @Column(precision = 19,scale = 2)
     private BigDecimal valorFixo;
 }
