@@ -2,7 +2,7 @@ package com.senai.conta_bancaria.ui_interface.controller;
 
 import com.senai.conta_bancaria.application.dto.PagamentoRequestDTO;
 import com.senai.conta_bancaria.application.dto.PagamentoResponseDTO;
-import com.senai.conta_bancaria.application.service.PagamentoAppService;
+import com.senai.conta_bancaria.application.service.PagamentoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +15,7 @@ import java.net.URI;
 @RequestMapping("/api/pagamento")
 @RequiredArgsConstructor
 public class PagamentoController {
-    private final PagamentoAppService service;
+    private final PagamentoService service;
 
     @PostMapping
     public ResponseEntity<PagamentoResponseDTO> processarPagamento(

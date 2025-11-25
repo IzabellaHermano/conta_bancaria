@@ -3,10 +3,8 @@ package com.senai.conta_bancaria.application.dto;
 import com.senai.conta_bancaria.domain.entity.Cliente;
 import com.senai.conta_bancaria.domain.entity.Conta;
 import com.senai.conta_bancaria.domain.enums.Role;
-import jakarta.persistence.Column;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import org.hibernate.validator.constraints.br.CPF;
 
 import java.util.ArrayList;
 

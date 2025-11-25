@@ -67,7 +67,6 @@ public class PagamentoDomainService {
 
         if (pagamento.getConta().getSaldo().compareTo(pagamento.getValorPago()) >= 0) {
             pagamento.setStatus(StatusPagamento.PAGO);
-            // Debita o valor da conta
             pagamento.getConta().sacar(pagamento.getValorPago());
         } else {
             pagamento.setStatus(StatusPagamento.FALHA);

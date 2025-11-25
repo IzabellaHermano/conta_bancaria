@@ -21,12 +21,10 @@ public class CodigoAutenticacaoService {
     private final CodigoAutenticacaoRepository repository;
     private final ClienteRepository clienteRepository;
 
-    //registra o novo código que é enviado pelo IoT
     public CodigoResponseDTO registrarCodigo(CodigoRequestDTO dto){
         Cliente cliente = clienteRepository.findByCpfAndAtivoTrue(dto.clienteCpf())
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("cliente"));
 
-        // criando nova instancia da entidade CodigoAutenticacao
         CodigoAutenticacao codigo = CodigoAutenticacao.builder()
                 .codigo(dto.codigo())
                 .expiraEm(dto.expiraEm())
@@ -37,7 +35,6 @@ public class CodigoAutenticacaoService {
         return CodigoResponseDTO.fromEntity(repository.save(codigo));
     }
 
-    //validação do código recebido via IoT
     public CodigoResponseDTO validarCodigo(String codigo, String clienteCpf){
         Cliente cliente = clienteRepository.findByCpfAndAtivoTrue(clienteCpf)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("cliente"));
@@ -45,7 +42,6 @@ public class CodigoAutenticacaoService {
         CodigoAutenticacao codigoAutenticacao = repository.findTopByClienteOrderByExpiraEmDesc(cliente)
                 .orElseThrow(() -> new AutenticacaoIoTExpiradaException("Código não encontrado ou inválido."));
 
-        //validações para verificar se o código está expirado ou se o código é inválido (respectivamente)
         if (codigoAutenticacao.getExpiraEm().isBefore(LocalDateTime.now())) {
             throw new AutenticacaoIoTExpiradaException("Autenticação falhou ou o código expirou." );
         }

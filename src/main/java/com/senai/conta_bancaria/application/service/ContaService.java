@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-//service chama o conjunto de acoes a serem realizadas
+
 @Service
 @RequiredArgsConstructor
 @Transactional

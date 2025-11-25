@@ -1,6 +1,5 @@
 package com.senai.conta_bancaria.application.service;
 
-import com.senai.conta_bancaria.application.dto.ClienteResponseDTO;
 import com.senai.conta_bancaria.application.dto.GerenteAtualizadoDTO;
 import com.senai.conta_bancaria.application.dto.GerenteRegistroDTO;
 import com.senai.conta_bancaria.application.dto.GerenteResponseDTO;

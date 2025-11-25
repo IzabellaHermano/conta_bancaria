@@ -4,51 +4,90 @@ import com.senai.conta_bancaria.application.dto.PagamentoRequestDTO;
 import com.senai.conta_bancaria.application.dto.PagamentoResponseDTO;
 import com.senai.conta_bancaria.domain.entity.Conta;
 import com.senai.conta_bancaria.domain.entity.Pagamento;
-import com.senai.conta_bancaria.domain.entity.Taxa;
 import com.senai.conta_bancaria.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.conta_bancaria.domain.repository.ContaRepository;
 import com.senai.conta_bancaria.domain.repository.PagamentoRepository;
-import com.senai.conta_bancaria.domain.repository.TaxaRepository;
 import com.senai.conta_bancaria.domain.service.PagamentoDomainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service // Adiciona a anotação para que o Spring gerencie esta classe
-@RequiredArgsConstructor // Adiciona construtor para injetar as dependências 'final'
+@Service
+@Transactional
+@RequiredArgsConstructor
 public class PagamentoService {
 
-    private final PagamentoRepository pagamentoRepository;
+    private final PagamentoRepository repository;
     private final ContaRepository contaRepository;
-    private final TaxaRepository taxaRepository;
-    private final PagamentoDomainService domainService;
+    private final CodigoAutenticacaoService codigoAutenticacaoService;
+    private final IoTService iotService;
 
-    // A autorização verifica se a conta pertence ao cliente autenticado (lógica de segurança mais robusta),
-    // mas o requisito básico é permitir CLIENTE e GERENTE.
-    @PreAuthorize("hasAnyRole('CLIENTE', 'GERENTE')")
-    public PagamentoResponseDTO realizarPagamento(String numeroConta, PagamentoRequestDTO dto) {
-        // 1. Buscar Conta de Origem
-        Conta conta = contaRepository.findByNumeroAndAtivaTrue(numeroConta)
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Conta ativa com número " + numeroConta));
-
-        // 2. Buscar Taxas (simulação de taxas padrão aplicáveis a todo pagamento)
-        List<Taxa> taxasAplicaveis = taxaRepository.findAll();
-
-        // 3. Processar Pagamento (executa a lógica de negócio do Domínio)
-        // Lança exceções como SaldoInsuficienteException e PagamentoInvalidoException
-        Pagamento pagamento = domainService.processarPagamento(
-                conta,
-                dto.boleto(),
-                dto.valor(),
-                taxasAplicaveis
+    private Pagamento buscarPagamentoPorBoleto(String boleto) {
+        var pagamento = repository.findByBoleto(boleto).orElseThrow(
+                () -> new EntidadeNaoEncontradaException("pagamento")
         );
+        return pagamento;
+    }
 
-        // 4. Persistir a Conta (com o saldo atualizado) e o Pagamento (com o status e valor total)
-        contaRepository.save(conta);
-        Pagamento pagamentoSalvo = pagamentoRepository.save(pagamento);
+    @PreAuthorize("hasRole('GERENTE')")
+    public PagamentoResponseDTO processarPagamento(PagamentoRequestDTO dto, boolean respostaValidaMQTT) {
+        Conta conta = contaRepository.findByNumeroAndAtivaTrue(dto.contaNumero())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Conta não encontrada"));
+
+        Pagamento pagamento = dto.toEntity(conta);
+
+        PagamentoDomainService.validarPagamento(pagamento);
+
+        PagamentoDomainService.calcularTaxa(pagamento);
+
+        PagamentoDomainService.definirStatus(pagamento, respostaValidaMQTT);
+
+        Pagamento pagamentoSalvo = repository.save(pagamento);
 
         return PagamentoResponseDTO.fromEntity(pagamentoSalvo);
     }
+
+    @PreAuthorize("hasAnyRole('GERENTE')")
+    public PagamentoResponseDTO verPagamento(String boleto){
+        var pagamento = buscarPagamentoPorBoleto(boleto);
+        return PagamentoResponseDTO.fromEntity(pagamento);
+    }
+
+    @PreAuthorize("hasRole('GERENTE')")
+    public List<PagamentoResponseDTO> listarPagamentos(){
+        return repository.findAll().stream()
+                .map(PagamentoResponseDTO::fromEntity)
+                .toList();
+    }
+
+    @PreAuthorize("hasRole('CLIENTE')")
+    public List<PagamentoResponseDTO> verPagamentoPorConta(String contaNumero){
+        Conta conta = contaRepository.findByNumeroAndAtivaTrue(contaNumero)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Conta não encontrada"));
+        return repository.findByConta(conta).stream()
+                .map(PagamentoResponseDTO::fromEntity)
+                .toList();
+    }
+
+    @PreAuthorize("hasRole('CLIENTE')")
+    public PagamentoResponseDTO realizarPagamento(PagamentoRequestDTO dto) {
+        Conta conta = contaRepository.findByNumeroAndAtivaTrue(dto.contaNumero())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Conta não encontrada"));
+
+        iotService.solicitarAutenticacao(conta.getCliente().getCpf());
+
+        codigoAutenticacaoService.validarCodigo(dto.codigoAutenticacao(), conta.getCliente().getCpf());
+
+        Pagamento pagamento = dto.toEntity(conta);
+        PagamentoDomainService.validarPagamento(pagamento);
+        PagamentoDomainService.calcularTaxa(pagamento);
+        PagamentoDomainService.definirStatus(pagamento, true); // se chegou até aqui, IoT validado
+
+        Pagamento pagamentoSalvo = repository.save(pagamento);
+        return PagamentoResponseDTO.fromEntity(pagamentoSalvo);
+    }
+
 }

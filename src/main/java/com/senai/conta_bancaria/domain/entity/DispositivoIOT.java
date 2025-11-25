@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DispositivoIoT {
+public class DispositivoIOT {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
