@@ -1,89 +1,77 @@
 package com.senai.conta_bancaria.domain.service;
 
-import com.senai.conta_bancaria.domain.entity.Conta;
+
 import com.senai.conta_bancaria.domain.entity.Pagamento;
 import com.senai.conta_bancaria.domain.entity.Taxa;
 import com.senai.conta_bancaria.domain.enums.StatusPagamento;
 import com.senai.conta_bancaria.domain.exception.PagamentoInvalidoException;
 import com.senai.conta_bancaria.domain.exception.SaldoInsuficienteException;
+import com.senai.conta_bancaria.domain.exception.TaxaInvalidaException;
+import com.senai.conta_bancaria.domain.repository.PagamentoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PagamentoDomainService {
 
-    public void validarBoleto(String boleto) {
+    private static PagamentoRepository repository;
 
-        if (boleto.startsWith("999")) {
-            throw new PagamentoInvalidoException("Boleto vencido. A data de vencimento foi ultrapassada.");
+
+    public static void validarPagamento(Pagamento pagamento) {
+        if (pagamento.getValorPago() == null || pagamento.getValorPago().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new PagamentoInvalidoException("Valor do pagamento deve ser positivo.");
+        }
+
+        if (pagamento.getConta() == null || !pagamento.getConta().isAtiva()) {
+            throw new PagamentoInvalidoException("Conta inválida ou inativa.");
+        }
+
+        if (pagamento.getConta().getSaldo().compareTo(pagamento.getValorPago()) < 0) {
+            throw new SaldoInsuficienteException("realizar pagamento");
         }
 
     }
 
-    public BigDecimal calcularValorTotalDebitado(BigDecimal valorPrincipal, List<Taxa> taxas) {
-        BigDecimal valorTotal = valorPrincipal;
+    public static void calcularTaxa(Pagamento pagamento) {
+        BigDecimal valorBase = pagamento.getValorPago();
+        BigDecimal totalTaxas = BigDecimal.ZERO;
 
-        for (Taxa taxa : taxas) {
+        if (pagamento.getTaxas() != null) {
+            for (Taxa taxa : pagamento.getTaxas()) {
 
-            BigDecimal valorTaxaPercentual = valorPrincipal.multiply(taxa.getPercentual())
-                    .setScale(2, RoundingMode.HALF_UP);
+                if (taxa.getPercentual() != null && taxa.getPercentual().compareTo(BigDecimal.ZERO) > 0) {
+                    BigDecimal valorPercentual = valorBase.multiply(taxa.getPercentual());
+                    totalTaxas = totalTaxas.add(valorPercentual);
+                } else throw new TaxaInvalidaException("Percentual da taxa nulo, ou negativo.");
 
-            valorTotal = valorTotal.add(valorTaxaPercentual);
 
-
-            if (taxa.getValorFixo() != null) {
-                valorTotal = valorTotal.add(taxa.getValorFixo());
+                if (taxa.getValorFixo() != null && taxa.getValorFixo().compareTo(BigDecimal.ZERO) > 0) {
+                    totalTaxas = totalTaxas.add(taxa.getValorFixo());
+                } else throw new TaxaInvalidaException("Valor fixo da taxa nulo, ou negativo.");
             }
         }
 
-        return valorTotal.setScale(2, RoundingMode.HALF_UP);
+        pagamento.setValorPago(valorBase.add(totalTaxas));
     }
-    @Transactional // A transação deve ser propagada do AppService
-    public Pagamento processarPagamento(Conta conta, String boleto, BigDecimal valorPrincipal, List<Taxa> taxas) {
-        Pagamento pagamento = Pagamento.builder()
-                .conta(conta)
-                .boleto(boleto)
-                .valorPago(valorPrincipal)
-                .dataPagamento(LocalDateTime.now())
-                .status(StatusPagamento.PENDENTE)
-                .taxas(taxas)
-                .build();
 
-        try {
-
-            validarBoleto(boleto);
-
-
-            BigDecimal valorTotalDebitado = calcularValorTotalDebitado(valorPrincipal, taxas);
-            pagamento.setValorTotalDebitado(valorTotalDebitado);
-
-            conta.sacar(valorTotalDebitado);
-
-
-            pagamento.setStatus(StatusPagamento.SUCESSO);
-
-        } catch (SaldoInsuficienteException e) {
-            pagamento.setStatus(StatusPagamento.SALDO_INSUFICIENTE);
-            throw e;
-
-        } catch (PagamentoInvalidoException e) {
-
-            pagamento.setStatus(StatusPagamento.BOLETO_VENCIDO);
-            throw e;
-
-        } catch (Exception e) {
-
+    public static void definirStatus(Pagamento pagamento, boolean respostaValidaMQTT) {
+        if (!respostaValidaMQTT) {
             pagamento.setStatus(StatusPagamento.FALHA);
-            throw new PagamentoInvalidoException("Erro inesperado no processamento do pagamento.");
+            return;
         }
 
-        return pagamento;
+        if (pagamento.getConta().getSaldo().compareTo(pagamento.getValorPago()) >= 0) {
+            pagamento.setStatus(StatusPagamento.PAGO);
+            // Debita o valor da conta
+            pagamento.getConta().sacar(pagamento.getValorPago());
+        } else {
+            pagamento.setStatus(StatusPagamento.FALHA);
+        }
     }
+
 }

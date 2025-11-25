@@ -18,7 +18,7 @@ public record ClienteAtualizadoDTO (
         String cpf,
 
         @Email
-        @NotBlank
+        @NotBlank(message = "Por favor, digite um email para o cliente")
         String email,
 
         @NotBlank
