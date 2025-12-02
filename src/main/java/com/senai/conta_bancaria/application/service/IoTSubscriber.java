@@ -1,5 +1,7 @@
 package com.senai.conta_bancaria.application.service;
 
+import com.rafaelcosta.spring_mqttx.domain.annotation.MqttPayload;
+import com.rafaelcosta.spring_mqttx.domain.annotation.MqttSubscriber;
 import com.senai.conta_bancaria.application.dto.CodigoRequestDTO;
 import com.senai.conta_bancaria.domain.entity.Cliente;
 import com.senai.conta_bancaria.domain.entity.CodigoAutenticacao;

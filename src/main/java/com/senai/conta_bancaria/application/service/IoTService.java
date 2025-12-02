@@ -1,5 +1,6 @@
 package com.senai.conta_bancaria.application.service;
 
+import com.rafaelcosta.spring_mqttx.domain.annotation.MqttPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
