@@ -1,16 +1,22 @@
 package com.senai.conta_bancaria.application.dto;
 import com.senai.conta_bancaria.domain.entity.Taxa;
+import com.senai.conta_bancaria.domain.enums.TipoPagamento;
 
 import java.math.BigDecimal;
 
 public record TaxaRequestDTO(
         String descricao,
-        BigDecimal percentual
+        BigDecimal percentual,
+        BigDecimal valorFixo,
+        TipoPagamento tipoPagamento
 ){
         public static TaxaRequestDTO fromEntity(Taxa taxa){
                 return new TaxaRequestDTO(
                         taxa.getDescricao(),
-                        taxa.getPercentual()
+                        taxa.getPercentual(),
+                        taxa.getValorFixo(),
+                        taxa.getTipoPagamento()
+
                 );
         }
 }

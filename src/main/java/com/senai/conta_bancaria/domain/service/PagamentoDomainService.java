@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -32,30 +34,37 @@ public class PagamentoDomainService {
         }
 
         if (pagamento.getConta().getSaldo().compareTo(pagamento.getValorPago()) < 0) {
-            throw new SaldoInsuficienteException("realizar pagamento");
+            throw new SaldoInsuficienteException("pagamento");
+        }
+
+        if (pagamento.getTipoPagamento() == null){
+            throw new PagamentoInvalidoException("Tipo de pagamento inválido/inexistente. Verfique se digitou corretamente: LUZ, AGUA ou BOLETO.");
         }
 
     }
 
-    public static void calcularTaxa(Pagamento pagamento) {
+    public static void calcularTaxa(Pagamento pagamento, List<Taxa> taxasAtivas) {
+
+        // define as taxas do pagamento com base no que veio do banco
+        if (taxasAtivas != null && !taxasAtivas.isEmpty()) {
+            // cria uma cópia das taxas para este pagamento específico
+            pagamento.setTaxas(new ArrayList<>(taxasAtivas));
+        }
+
         BigDecimal valorBase = pagamento.getValorPago();
         BigDecimal totalTaxas = BigDecimal.ZERO;
 
+        // faz o calculo do percentual, se tiver, e soma com o valorFixo, se tiver
         if (pagamento.getTaxas() != null) {
             for (Taxa taxa : pagamento.getTaxas()) {
-
                 if (taxa.getPercentual() != null && taxa.getPercentual().compareTo(BigDecimal.ZERO) > 0) {
-                    BigDecimal valorPercentual = valorBase.multiply(taxa.getPercentual());
-                    totalTaxas = totalTaxas.add(valorPercentual);
-                } else throw new TaxaInvalidaException("Percentual da taxa nulo, ou negativo.");
-
-
+                    totalTaxas = totalTaxas.add(valorBase.multiply(taxa.getPercentual()));
+                }
                 if (taxa.getValorFixo() != null && taxa.getValorFixo().compareTo(BigDecimal.ZERO) > 0) {
                     totalTaxas = totalTaxas.add(taxa.getValorFixo());
-                } else throw new TaxaInvalidaException("Valor fixo da taxa nulo, ou negativo.");
+                }
             }
         }
-
         pagamento.setValorPago(valorBase.add(totalTaxas));
     }
 
@@ -67,6 +76,7 @@ public class PagamentoDomainService {
 
         if (pagamento.getConta().getSaldo().compareTo(pagamento.getValorPago()) >= 0) {
             pagamento.setStatus(StatusPagamento.PAGO);
+            // Debita o valor da conta
             pagamento.getConta().sacar(pagamento.getValorPago());
         } else {
             pagamento.setStatus(StatusPagamento.FALHA);

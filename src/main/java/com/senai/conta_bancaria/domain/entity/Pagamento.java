@@ -1,6 +1,7 @@
 package com.senai.conta_bancaria.domain.entity;
 
 import com.senai.conta_bancaria.domain.enums.StatusPagamento;
+import com.senai.conta_bancaria.domain.enums.TipoPagamento;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +35,10 @@ public class Pagamento {
 
     @Column(nullable = false)
     private LocalDateTime dataPagamento;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoPagamento tipoPagamento;
 
     @Enumerated(EnumType.STRING) // salva o enum como texto
     @Column(nullable = false)

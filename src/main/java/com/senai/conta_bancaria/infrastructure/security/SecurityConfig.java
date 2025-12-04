@@ -44,7 +44,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/gerente").hasRole("ADMIN")
 
                         //PAGAMENTO
-                        .requestMatchers(HttpMethod.POST, "/contas/{numeroConta}/pagamentos").hasAnyRole("CLIENTE", "GERENTE")
+                        .requestMatchers(HttpMethod.POST, "/pagamento").hasRole("GERENTE")
+                        .requestMatchers(HttpMethod.POST, "/pagamento/cliente").hasRole("CLIENTE")
 
                         //TAXAS
                         .requestMatchers(HttpMethod.POST, "/taxas").hasRole("GERENTE")
