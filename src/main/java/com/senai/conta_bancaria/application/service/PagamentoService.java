@@ -62,7 +62,7 @@ public class PagamentoService {
         Pagamento pagamento = dto.toEntity(conta);
         PagamentoDomainService.validarPagamento(pagamento);
         PagamentoDomainService.calcularTaxa(pagamento, taxasDoBanco);
-        PagamentoDomainService.definirStatus(pagamento, true); // se chegou até aqui, IoT validado
+        PagamentoDomainService.definirStatus(pagamento, true);
 
         Pagamento pagamentoSalvo = repository.save(pagamento);
         return PagamentoResponseDTO.fromEntity(pagamentoSalvo);

@@ -45,16 +45,13 @@ public class PagamentoDomainService {
 
     public static void calcularTaxa(Pagamento pagamento, List<Taxa> taxasAtivas) {
 
-        // define as taxas do pagamento com base no que veio do banco
         if (taxasAtivas != null && !taxasAtivas.isEmpty()) {
-            // cria uma cópia das taxas para este pagamento específico
             pagamento.setTaxas(new ArrayList<>(taxasAtivas));
         }
 
         BigDecimal valorBase = pagamento.getValorPago();
         BigDecimal totalTaxas = BigDecimal.ZERO;
 
-        // faz o calculo do percentual, se tiver, e soma com o valorFixo, se tiver
         if (pagamento.getTaxas() != null) {
             for (Taxa taxa : pagamento.getTaxas()) {
                 if (taxa.getPercentual() != null && taxa.getPercentual().compareTo(BigDecimal.ZERO) > 0) {
@@ -76,7 +73,6 @@ public class PagamentoDomainService {
 
         if (pagamento.getConta().getSaldo().compareTo(pagamento.getValorPago()) >= 0) {
             pagamento.setStatus(StatusPagamento.PAGO);
-            // Debita o valor da conta
             pagamento.getConta().sacar(pagamento.getValorPago());
         } else {
             pagamento.setStatus(StatusPagamento.FALHA);

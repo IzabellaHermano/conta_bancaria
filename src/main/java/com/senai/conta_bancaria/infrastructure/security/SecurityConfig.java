@@ -31,17 +31,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/cliente").hasRole("GERENTE")
                         .requestMatchers(HttpMethod.DELETE, "/cliente").hasRole("GERENTE")
 
-                        //CONTA
-                        .requestMatchers(HttpMethod.POST, "/conta").hasAnyRole("GERENTE","CLIENTE")
-                        .requestMatchers(HttpMethod.GET, "/conta").hasAnyRole("GERENTE","CLIENTE")
-                        .requestMatchers(HttpMethod.PUT, "/conta").hasAnyRole("GERENTE","CLIENTE")
-                        .requestMatchers(HttpMethod.DELETE, "/conta").hasAnyRole("GERENTE")
-
                         //GERENTE
                         .requestMatchers(HttpMethod.POST, "/gerente").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/gerente").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/gerente").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/gerente").hasRole("ADMIN")
+
+                        //CONTA
+                        .requestMatchers(HttpMethod.POST, "/conta").hasAnyRole("GERENTE","CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/conta").hasAnyRole("GERENTE","CLIENTE")
+                        .requestMatchers(HttpMethod.PUT, "/conta").hasAnyRole("GERENTE","CLIENTE")
+                        .requestMatchers(HttpMethod.DELETE, "/conta").hasAnyRole("GERENTE")
 
                         //PAGAMENTO
                         .requestMatchers(HttpMethod.POST, "/pagamento").hasRole("GERENTE")

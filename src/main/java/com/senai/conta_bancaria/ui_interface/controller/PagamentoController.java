@@ -25,7 +25,6 @@ import java.util.List;
 public class PagamentoController {
     private final PagamentoService service;
 
-    //buscar um pagamento por boleto
     @Operation(
             summary = "Buscar pagamento por boleto",
             description = "Exibe o pagamento pelo nome ou número do boleto especificado",
@@ -49,7 +48,6 @@ public class PagamentoController {
         return ResponseEntity.ok(service.verPagamento(boleto));
     }
 
-    //listar todos os pagamentos
     @Operation(
             summary = "Listar todos os pagamentos",
             description = "Retorna todas os pagamentos realizados por um cliente",
@@ -62,8 +60,6 @@ public class PagamentoController {
         return ResponseEntity.ok(service.listarPagamentos());
     }
 
-
-    //realizar pagamento
     @Operation(
             summary = "Cliente realiza um pagamento",
             description = "Cliente pode realizar um pagamento",

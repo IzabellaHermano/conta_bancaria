@@ -69,7 +69,6 @@ public class ClienteService {
         cliente.setEmail(dto.email());
         cliente.setSenha(dto.senha());
         return ClienteResponseDTO.fromEntity(repository.save(cliente));
-        // o metodo save observa o atributo id, e verifica se ja exite, se existe atualiza,se não salva
     }
 
     @PreAuthorize( "hasRole('GERENTE')")

@@ -60,7 +60,6 @@ public class TaxaController {
         return ResponseEntity.ok(service.criarTaxa(dto));
     }
 
-    //listar taxas
     @Operation(
             summary = "Listar todas as taxas",
             description = "Retorna todas as taxas cadastradas no banco de dados.",
